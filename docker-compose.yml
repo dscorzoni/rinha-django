@@ -8,6 +8,7 @@ services:
     build: .
     command: >
       sh -c "python rinhadjango/manage.py migrate &&
+             python rinhadjango/manage.py initdb &&
              python rinhadjango/manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
