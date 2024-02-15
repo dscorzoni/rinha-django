@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import django
+import time
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +28,7 @@ SECRET_KEY = 'django-insecure-)6n9cclqdys-lz_75$!u_xk&=ftxaj0x(hz1wd!nf7^7jt7k*q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost']
 
 
 # Application definition
@@ -76,8 +79,12 @@ WSGI_APPLICATION = 'rinhadjango.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'POST': 5432
     }
 }
 
@@ -122,3 +129,20 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Checking if database is ready for migration
+DATABASE_READY = False
+
+# At startup
+while not DATABASE_READY:
+    try:
+        django.db.connections['default'].ensure_connection()
+    except Exception:
+        time.sleep(1)
+    else:
+        DATABASE_READY = True
+
+# Run migrations now
+if not DATABASE_READY:
+    print('Applying migrations...')
+    os.system('python manage.py migrate')

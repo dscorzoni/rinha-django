@@ -1,27 +1,21 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+
   web:
     build: .
-    command: python rinhadjango/manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python rinhadjango/manage.py migrate &&
+             python rinhadjango/manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
-  # Database
-  db:
-    image: mysql:8.3
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'db'
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: 'userpass'
-      MYSQL_ROOT_PASSWORD: 'r00tPassKey'
-    ports:
-      - "3306:3306"
-    expose:
-      - "3306"
-    volumes:
-      - my-db:/var/lib/mysql
+      - 8000:8000
+    depends_on:
+      - db
 
 volumes:
-  my-db:
+  postgres-data:
 
