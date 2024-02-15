@@ -72,10 +72,27 @@ class Command(BaseCommand):
         print(verificar)
 ```
 
-E depois ser chamado no shell:
+E depois este comando ser chamado no shell:
 
 ```shell
 python manage.py initdb
+```
+
+Mas como queremos implementar essa funcionalidade quando fizermos o docker-compose up, essa alteração no arquivo docker-compose.yml foi necessária:
+
+```docker
+  web:
+    build: .
+    command: >
+      sh -c "python rinhadjango/manage.py migrate &&
+             python rinhadjango/manage.py initdb &&
+             python rinhadjango/manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
 ```
 
 Você pode encontrar mais informações sobre classes Command na [documentação](https://docs.djangoproject.com/en/dev/howto/custom-management-commands/) do Django.
