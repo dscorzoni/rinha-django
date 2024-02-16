@@ -1,18 +1,13 @@
-version: "3.5"
-
 services:
   db:
     image: postgres:16-alpine
     environment:
       - "POSTGRES_HOST_AUTH_METHOD=trust"
-    ports:
-      - 5432:5432
 
   web:
     build: .
     command: >
-      sh -c "python rinhadjango/manage.py makemigrations &&
-             python rinhadjango/manage.py migrate &&
+      sh -c "python rinhadjango/manage.py migrate &&
              python rinhadjango/manage.py initdb &&
              python rinhadjango/manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -21,3 +16,7 @@ services:
       - 8000:8000
     depends_on:
       - db
+
+volumes:
+  postgres-data:
+

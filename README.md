@@ -96,3 +96,9 @@ Mas como queremos implementar essa funcionalidade quando fizermos o docker-compo
 ```
 
 Você pode encontrar mais informações sobre classes Command na [documentação](https://docs.djangoproject.com/en/dev/howto/custom-management-commands/) do Django.
+
+### Cuidado ao renomear campos nos modelos do Django
+
+As migrações deram problema aqui quando tentei renomear campos e ao apagar os arquivos de migração para começar do zero, comecei a ter um problema onde as tabelas referentes aos Modelos não eram mais criadas.
+
+> Depois de muito tempo procurando uma solução, entendi que eu não poderia deletar a pasta migrations. Desta forma, criei uma nova pasta migrations e adicionei `__init__.py` nele. Problema resolvido (depois de 3 horas procurando pela solução!).
