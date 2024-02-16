@@ -35,5 +35,8 @@ RUN apk add --no-cache --virtual .build-deps \
 # copy the app to the folter
 COPY . /app
 
+RUN cd rinhadjango
+
 # start the dev-server
-CMD ["python", "rinhadjango/manage.py", "runserver"]
+#CMD ["python", "rinhadjango/manage.py", "runserver"]
+CMD ["gunicorn","rinhadjango.wsgi:application", "--bind 0.0.0.0:8000"]

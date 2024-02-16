@@ -4,3 +4,4 @@ tzdata
 djangorestframework
 markdown
 django-filter
+gunicorn

@@ -10,7 +10,7 @@ class Customer(models.Model):
 
 class Transaction(models.Model):
     cliente = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    valor = models.IntegerField()
+    valor = models.PositiveIntegerField()
     tipo = models.CharField(
         choices=[('c', 'c'), ('d', 'd')], max_length=1)
     descricao = models.CharField(max_length=10)

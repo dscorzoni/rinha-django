@@ -19,7 +19,7 @@ class CustomerListView(APIView):
 class AddTransaction(APIView):
     def get_customer(self, pk):
         try:
-            return Customer.objects.get(id=pk)
+            return Customer.objects.get(id=pk).order_by("-realizada_em")[:10]
         except Customer.DoesNotExist:
             raise Http404
 
@@ -63,7 +63,7 @@ class AddTransaction(APIView):
 class showExtract(APIView):
     def get_transactions(self, pk):
         try:
-            return Transaction.objects.filter(cliente__id=pk)
+            return Transaction.objects.filter(cliente__id=pk).order_by("-realizada_em")[:10]
         except Transaction.DoesNotExist:
             raise Http404
 
