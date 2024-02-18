@@ -11,13 +11,6 @@ import datetime
 # Create your views here.
 
 
-class CustomerListView(APIView):
-    def get(self, request):
-        customers = Customer.objects.all()
-        serializer = CustomerSerializer(customers, many=True)
-        return Response(serializer.data)
-
-
 class AddTransaction(APIView):
     def post(self, request, pk):
         with transaction.atomic():

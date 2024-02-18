@@ -1,5 +1,7 @@
 # Rinha de Backend - Django + PostgreSQL
 
+![](screen_gatling.png)
+
 Esta é a minha tentativa de implementar uma solução em django para a [Rinha de Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1). Encaro isso mais como uma oportunidade de aprendizado dado que minha experiência com o desenvolvimento de APIs é limitada, assim como meus conhecimentos de Docker.
 
 ## Considerações
@@ -103,3 +105,45 @@ Você pode encontrar mais informações sobre classes Command na [documentação
 As migrações deram problema aqui quando tentei renomear campos e ao apagar os arquivos de migração para começar do zero, comecei a ter um problema onde as tabelas referentes aos Modelos não eram mais criadas.
 
 > Depois de muito tempo procurando uma solução, entendi que eu não poderia deletar a pasta migrations. Desta forma, criei uma nova pasta migrations e adicionei `__init__.py` nele. Problema resolvido (depois de 3 horas procurando pela solução!).
+
+### Para evitar as inconsistências de requisições concorrentes
+
+Após completa a aplicação e rodar o teste com gatling, tive problemas na validação por conta de requisições concorrentes, gerando saldos negativos, o que fere as regras de negócio. Depois de uma [ajuda boa da comunidade](https://x.com/danilosr86/status/1759061055295176977?s=20) consegui encontrar uma solução para o django.
+
+Ao construir a View do endpoint de transacoes, tive que executar as operações de banco de dados dentro de uma transação utilizando `transaction.atomic()`. Além disso, ao invés de utilizar `Customers.objects.get()` para consultar o cliente no banco, utilizei `Customer.objects.select_for_update()` para adicionar um lock no registro até que todas as operações sejam finalizadas ([django-docs](https://docs.djangoproject.com/en/5.0/ref/models/querysets/#select-for-update)).
+
+```python
+class AddTransaction(APIView):
+    def post(self, request, pk):
+        with transaction.atomic():
+            customer = get_object_or_404(
+                Customer.objects.select_for_update(),
+                id=pk
+            )
+
+            input_data = request.data
+            input_data['cliente'] = customer.id
+            input_serializer = TransactionSerializer(data=input_data)
+
+            if input_serializer.is_valid():
+                novo_valor = input_serializer.validated_data['valor']
+                tipo = input_serializer.validated_data['tipo']
+
+                if (tipo == 'd'):
+                    novo_saldo = customer.saldo - novo_valor
+                    if (novo_saldo < (-1 * customer.limite)):
+                        return Response({"mensagem": "Limite insuficiente", "saldo": customer.saldo, "limite": customer.limite}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                else:
+                    novo_saldo = customer.saldo + novo_valor
+
+                input_serializer.save()
+                customer.saldo = novo_saldo
+                customer.save()
+                return Response({"limite": customer.limite, "saldo": novo_saldo}, status=status.HTTP_200_OK)
+            else:
+                return Response(input_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+```
+
+## Próximos Passos?
+
+Se você não me conhece, sou cientista de dados com mais de 12 anos de experiência mas Dev em formação. Não tenho a pretensão de conseguir completar a rinha e disponibilizar uma aplicação de altíssima performance (como muitos estão fazendo e mostrando no Twitter). Mas já fico satisfeito de ter completado as validações e aprendido tanto em tão pouco tempo.

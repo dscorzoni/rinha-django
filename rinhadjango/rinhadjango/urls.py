@@ -20,8 +20,6 @@ from rest_framework import routers
 from app import views
 
 urlpatterns = [
-    path('clientes/', views.CustomerListView.as_view()),
     path('clientes/<int:pk>/transacoes', views.AddTransaction.as_view()),
     path('clientes/<int:pk>/extrato', views.showExtract.as_view()),
-    path('admin/', admin.site.urls),
 ]
