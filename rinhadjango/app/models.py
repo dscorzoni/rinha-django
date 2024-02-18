@@ -9,7 +9,8 @@ class Customer(models.Model):
 
 
 class Transaction(models.Model):
-    cliente = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, db_index=True)
     valor = models.PositiveIntegerField()
     tipo = models.CharField(
         choices=[('c', 'c'), ('d', 'd')], max_length=1)

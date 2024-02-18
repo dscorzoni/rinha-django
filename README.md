@@ -62,13 +62,14 @@ from django.core.management import BaseCommand
 class Command(BaseCommand):
     def handle(self, **options):
 
-        limites = [100000, 80000, 1000000, 10000000, 500000]
+        limites = [1000 * 100, 800 * 100,
+                   10000 * 100, 100000 * 100, 5000 * 100]
 
         for lim in limites:
-            cliente = Clientes(limite=lim, saldo_inicial=0)
+            cliente = Customer(limite=lim, saldo=0)
             cliente.save()
 
-        verificar = Clientes.objects.all()
+        verificar = Customer.objects.all()
         print(verificar)
 ```
 
